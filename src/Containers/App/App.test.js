@@ -1,15 +1,13 @@
 import React from 'react';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+import App from './App';
 import { findByTestAttr } from '../../Shared/testUtils';
-
-import Header from './Header';
 
 Enzyme.configure({ adapter: new Adapter() });
 
 it('renders without crashing', () => {
-    const wrapper = shallow(<Header />)
-    const component = findByTestAttr(wrapper, 'component-header');
-    expect (component.length).toBe(1);
-  });
-  
+  const wrapper = shallow(<App />)
+  const component = findByTestAttr(wrapper, 'component-app');
+  expect (component.length).toBe(1);
+});
