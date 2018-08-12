@@ -29,7 +29,7 @@ it('renders without crashing', () => {
 });
 
 it('does not throw warning with expected props', () =>{
-     const myconfig = setup({config:{configSettings}});
+    const myconfig = setup({config:{configSettings}});
     const expectedProps = myconfig;
     const propError = checkPropTypes(Tweeter.propTypes, expectedProps, 'prop', Tweeter.name);
     expect(propError).toBeUndefined();
