@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 const UserSelect = (props) => {
     if (props.users) { }
     let userList = props.users.map(({ name, email, id }) => {
-        return <option key={id} value={email}>{name}</option>
+        return <option key={id} value={id}>{name}</option>
     });
 
     return (

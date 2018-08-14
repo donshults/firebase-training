@@ -18,6 +18,7 @@ class Tweeter extends React.Component {
         super(props);
         this.state = {
             users: [],
+            followedUsers: [],
             currentTweets: [],
             tweetInput: "",
             selectedId: "",
@@ -39,23 +40,37 @@ class Tweeter extends React.Component {
     getUsers = () => {
         const usersRef = firebase.database().ref('users');
 
-        usersRef.on('value', (snap) => {
+        usersRef.once('value', (snap) => {
             let users = snap.val();
             let newState = [];
             let selectedid = undefined;
             let selecteduser = undefined;
 
             for (let user in users) {
+                let tempFollowing = [];
+                let tempTweets = []
+                console.log("tempTweets: " + typeof users);
+
+                for(let follower in users[user].following){
+
+                    tempFollowing.push({
+                        id: follower
+                    })
+                }
+                tempTweets = this.getTweets(users[user].tweets);
+
                 newState.push({
                     id: user,
                     name: users[user].name,
-                    email: users[user].email
+                    email: users[user].email,
+                    following: tempFollowing,
+                    tweets: tempTweets
                 });
             }
 
             if (newState.length) {
                 selectedid = newState[0].id;
-                 selecteduser = {
+                selecteduser = {
                     id: newState[0].id,
                     name: newState[0].name,
                     email: newState[0].email
@@ -65,20 +80,69 @@ class Tweeter extends React.Component {
             this.setState({
                 users: newState,
                 selectedId: selectedid,
-                selectedUser: selecteduser
+                selectedUser: selecteduser,
             });
         });
 
     }
+    getTweets = (tweets) =>{
+        let tweetArray = [];
+        let newTweet = undefined;
+        for(let current in tweets){
+            console.log(current);
+            newTweet = {
+                "tweet": tweets[current]
+            }
+            tweetArray.push(newTweet);
+        }
+        return tweetArray;
+    };
 
-    getUser = (key) => {
+    getUserById = (key) => {
+        const usersRef = firebase.database().ref('users');
+        const userRef = usersRef.child(key);
+        let selecteduser = undefined;
+        let tempFollowing = [];
+        let tempTweets = []
+        userRef.on('value', (snap) => {
+            const userObj = snap.val();
+            userRef.child("following").once('value', (snap) =>{
+                this.setFollowing(snap.val());
+            });
+            userRef.child("tweets").once('value', (snap) =>{
+                this.setTweets(snap.val());
+            });
+            if (userObj) {
+                selecteduser = {
+                    id: key,
+                    name: userObj.name,
+                    email: userObj.email,
+                    following: tempFollowing,
+                    tweets: tempTweets
+                }               
+            }
+            this.setState({
+                selectedUser: selecteduser
+            });
+        });
+    }
+    setTweets = (key) =>{
+        console.log("getTweets: "+key);
+    };
+    setFollowing = (key) =>{
+        const usersRef = firebase.database().ref('users');
+
+    }
+
+    getUserByEmail = (key) => {
         const usersRef = firebase.database().ref('users');
         console.log("getUser: " + key);
         usersRef.on('value', (snap) => {
             let users = snap.val();
             let selecteduser = undefined;
             for (let user in users) {
-                if (key === users.id) {
+                const tempEmail = users[user].email;
+                if (key === tempEmail) {
                     selecteduser = {
                         id: user,
                         name: users[user].name,
@@ -131,16 +195,12 @@ class Tweeter extends React.Component {
     }
 
     handleSelectChange = (event) => {
-        var userKey = event.target.value;
+        var key = event.target.value;
         const usersRef = firebase.database().ref('users');
-        console.log("handleSelectChange: " + userKey)
-        if (userKey) {
-            var userRef = usersRef.child(userKey);
-            userRef.on('value', (snap) => {
-                console.log(snap.val());
-            });
-        }
-    }; 
+        console.log("handleSelectChange: " + key)
+        //this.getUserByEmail(key);
+        this.getUserById(key);
+    };
 
     /*tweetInputChanged = event => {
         console.log(event.target.value);

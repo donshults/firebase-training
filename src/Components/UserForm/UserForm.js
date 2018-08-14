@@ -5,7 +5,7 @@ const UserForm = (props) => {
   let userName = "";
   let userEmail = "";
   
-  console.log(props.selectedUser);
+ // console.log(props.selectedUser);
   if(props.selectedUser){
     userName = props.selectedUser.name;
     userEmail = props.selectedUser.email;
